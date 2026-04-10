@@ -1,10 +1,10 @@
-# 🛍️ Cartify - Modern E-Commerce Platform
+# Cartify - Modern E-commerce Website
 
-A feature-rich e-commerce platform built with Flask, featuring multilingual support, AI-powered chatbot, and comprehensive shopping experience.
+Cartify is a comprehensive, modern e-commerce website built with Flask, Bootstrap, and SQLAlchemy (supports both SQLite and MySQL). It features a beautiful, responsive design with enhanced user experience and all the essential e-commerce functionality.
 
-## 🚀 Features
+## Features
 
-### 🛍️ Core E-Commerce
+### Core E-commerce Features
 - **Product Management**: Dynamic product catalog with categories, pricing, and inventory
 - **Shopping Cart**: Persistent cart with real-time updates
 - **Order Processing**: Complete order lifecycle with status tracking
@@ -471,3 +471,6 @@ If you encounter any issues or have questions:
 ---
 
 **Cartify** - Your Ultimate Shopping Destination 🛒✨
+=======
+# cartify-ecommerce
+>>>>>>> ba0a52caec706c2aab9e0efe7930314614dba73f
