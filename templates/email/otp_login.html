@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Your Cartify Login OTP</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; }
+        .content { padding: 30px; background: #f9f9f9; }
+        .otp-code { font-size: 32px; font-weight: bold; color: #667eea; text-align: center; padding: 20px; background: white; border: 2px dashed #667eea; border-radius: 10px; margin: 20px 0; }
+        .warning { color: #d9534f; font-weight: bold; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Secure Login</h1>
+        </div>
+        <div class="content">
+            <h2>Hi {{ user.first_name or user.username }}!</h2>
+            <p>You have requested to log in to your Cartify account. Use the verification code below to complete your login:</p>
+
+            <div class="otp-code">
+                {{ otp_code }}
+            </div>
+
+            <p class="warning">⚠️ This code will expire in 10 minutes.</p>
+            <p class="warning">🔒 Do not share this code with anyone.</p>
+
+            <p>If you didn't request this login, please ignore this email and consider changing your password.</p>
+
+            <p>For security reasons, this code can only be used once.</p>
+        </div>
+        <div class="footer">
+            <p>© 2024 Cartify. All rights reserved.</p>
+            <p>This is an automated message. Please do not reply.</p>
+        </div>
+    </div>
+</body>
+</html>

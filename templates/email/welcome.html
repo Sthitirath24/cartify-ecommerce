@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Welcome to Cartify!</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; }
+        .content { padding: 30px; background: #f9f9f9; }
+        .button { display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .features { margin: 20px 0; }
+        .features ul { list-style: none; padding: 0; }
+        .features li { padding: 5px 0; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Welcome to Cartify!</h1>
+        </div>
+        <div class="content">
+            <h2>Hi {{ user.first_name or user.username }}!</h2>
+            <p>Welcome to Cartify! Your account has been successfully created and verified. You're now ready to start shopping!</p>
+
+            <div style="text-align: center;">
+                <a href="http://localhost:5000" class="button">Start Shopping</a>
+            </div>
+
+            <div class="features">
+                <h3>Here's what you can do:</h3>
+                <ul>
+                    <li>🛒 Browse thousands of products</li>
+                    <li>🔍 Search and filter products</li>
+                    <li>❤️ Add items to your wishlist</li>
+                    <li>🛍️ Secure checkout process</li>
+                    <li>📦 Track your orders</li>
+                    <li>⭐ Leave product reviews</li>
+                    <li>💰 Earn loyalty points</li>
+                </ul>
+            </div>
+
+            <p>Need help getting started? Check out our <a href="http://localhost:5000/help">help center</a> or contact our support team.</p>
+
+            <p>Happy shopping! 🛍️</p>
+        </div>
+        <div class="footer">
+            <p>© 2024 Cartify. All rights reserved.</p>
+            <p>Questions? Contact us at support@cartify.com</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,512 @@
+<!-- Multilingual Chatbot Widget -->
+<div id="chatbot-widget" class="chatbot-widget">
+    <!-- Header -->
+    <div class="chatbot-header">
+        <div class="chatbot-title">
+            <i class="fas fa-comments"></i>
+            <span id="chatbot-title">Chat with Cartify</span>
+        </div>
+        <div class="chatbot-controls">
+            <select id="language-select" class="language-select">
+                <option value="en">English</option>
+                <option value="hi">हिंदी</option>
+                <option value="or">ଓଡ଼ିଆ</option>
+                <option value="ta">தமிழ்</option>
+                <option value="te">తెలుగు</option>
+                <option value="bn">বাংলা</option>
+                <option value="mr">मराठी</option>
+                <option value="gu">ગુજરાતી</option>
+            </select>
+            <button id="close-chatbot" class="close-btn"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+
+    <!-- Messages Container -->
+    <div id="messages-container" class="messages-container">
+        <div class="message bot-message">
+            <div class="message-content" id="welcome-message">
+                Hello! Welcome to Cartify. How can I help you today?
+            </div>
+        </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="chatbot-input-area">
+        <input 
+            type="text" 
+            id="chat-input" 
+            class="chat-input" 
+            placeholder="Type your message..."
+            autocomplete="off"
+        >
+        <button id="send-btn" class="send-btn">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Chatbot Trigger Button (Floating) -->
+<button id="chatbot-trigger" class="chatbot-trigger">
+    <i class="fas fa-comments"></i>
+    <span class="notification-badge">1</span>
+</button>
+
+<style>
+/* Chatbot Widget Styles */
+.chatbot-trigger {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    z-index: 999;
+}
+
+.chatbot-trigger:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ff4757;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.chatbot-widget {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 400px;
+    height: 600px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    display: none;
+    flex-direction: column;
+    z-index: 999;
+    animation: slideUp 0.3s ease;
+}
+
+.chatbot-widget.visible {
+    display: flex;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chatbot-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 16px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatbot-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.chatbot-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.language-select {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.language-select:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.language-select option {
+    background: #333;
+    color: white;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.close-btn:hover {
+    transform: scale(1.2);
+}
+
+.messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.message {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message.user-message {
+    justify-content: flex-end;
+}
+
+.message.bot-message {
+    justify-content: flex-start;
+}
+
+.message-content {
+    max-width: 80%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    word-wrap: break-word;
+    line-height: 1.4;
+    font-size: 14px;
+}
+
+.user-message .message-content {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.bot-message .message-content {
+    background: #f0f0f0;
+    color: #333;
+    border-bottom-left-radius: 4px;
+}
+
+.message-timestamp {
+    font-size: 12px;
+    color: #999;
+    margin-top: 4px;
+    text-align: center;
+}
+
+.message.typing .message-content {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.typing-indicator {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    background: #999;
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% {
+        opacity: 0.5;
+        transform: translateY(0);
+    }
+    30% {
+        opacity: 1;
+        transform: translateY(-10px);
+    }
+}
+
+.chatbot-input-area {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid #eee;
+    background: #f9f9f9;
+    border-radius: 0 0 12px 12px;
+}
+
+.chat-input {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 24px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.chat-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.send-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.send-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.send-btn:active {
+    transform: scale(0.95);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .chatbot-widget {
+        width: 100%;
+        height: 100%;
+        bottom: 0;
+        right: 0;
+        border-radius: 0;
+    }
+    
+    .message-content {
+        max-width: 90%;
+    }
+}
+
+/* Scrollbar styling */
+.messages-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+</style>
+
+<script>
+// Multilingual Chatbot JavaScript
+class MultilingualChatbot {
+    constructor() {
+        this.widget = document.getElementById('chatbot-widget');
+        this.trigger = document.getElementById('chatbot-trigger');
+        this.closeBtn = document.getElementById('close-chatbot');
+        this.messagesContainer = document.getElementById('messages-container');
+        this.chatInput = document.getElementById('chat-input');
+        this.sendBtn = document.getElementById('send-btn');
+        this.languageSelect = document.getElementById('language-select');
+        
+        this.currentLanguage = localStorage.getItem('chatbotLanguage') || 'en';
+        this.sessionId = this.generateSessionId();
+        
+        this.init();
+    }
+    
+    init() {
+        // Event listeners
+        this.trigger.addEventListener('click', () => this.toggleWidget());
+        this.closeBtn.addEventListener('click', () => this.toggleWidget());
+        this.sendBtn.addEventListener('click', () => this.sendMessage());
+        this.chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.sendMessage();
+        });
+        this.languageSelect.addEventListener('change', (e) => {
+            this.currentLanguage = e.target.value;
+            localStorage.setItem('chatbotLanguage', this.currentLanguage);
+            this.updateLanguage();
+        });
+        
+        // Set initial language
+        this.languageSelect.value = this.currentLanguage;
+        this.updateLanguage();
+    }
+    
+    generateSessionId() {
+        let sessionId = sessionStorage.getItem('chatbot_session_id');
+        if (!sessionId) {
+            sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            sessionStorage.setItem('chatbot_session_id', sessionId);
+        }
+        return sessionId;
+    }
+    
+    toggleWidget() {
+        this.widget.classList.toggle('visible');
+        if (this.widget.classList.contains('visible')) {
+            this.chatInput.focus();
+        }
+    }
+    
+    sendMessage() {
+        const message = this.chatInput.value.trim();
+        if (!message) return;
+        
+        // Add user message to UI
+        this.addMessage(message, 'user');
+        this.chatInput.value = '';
+        
+        // Show typing indicator
+        this.showTypingIndicator();
+        
+        // Send to server
+        fetch('/api/chat/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: message,
+                language: this.currentLanguage
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            this.removeTypingIndicator();
+            if (data.success) {
+                this.addMessage(data.message, 'bot');
+            } else {
+                this.addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            this.removeTypingIndicator();
+            this.addMessage('Connection error. Please try again.', 'bot');
+        });
+    }
+    
+    addMessage(message, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        contentDiv.textContent = message;
+        
+        messageDiv.appendChild(contentDiv);
+        this.messagesContainer.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+    }
+    
+    showTypingIndicator() {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message bot-message typing';
+        messageDiv.id = 'typing-indicator';
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        contentDiv.innerHTML = '<div class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>';
+        
+        messageDiv.appendChild(contentDiv);
+        this.messagesContainer.appendChild(messageDiv);
+        
+        this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+    }
+    
+    removeTypingIndicator() {
+        const indicator = document.getElementById('typing-indicator');
+        if (indicator) {
+            indicator.remove();
+        }
+    }
+    
+    updateLanguage() {
+        // Update placeholder and other UI text
+        const placeholders = {
+            'en': 'Type your message...',
+            'hi': 'अपना संदेश टाइप करें...',
+            'or': 'ଆପଣଙ୍କ ବାର୍ତ୍ତା ଟାଇପ କରନ୍ତୁ...',
+            'ta': 'உங்கள் செய்தியை டைப் செய்யவும்...',
+            'te': 'మీ సందేశాన్ని టైప్ చేయండి...',
+            'bn': 'আপনার বার্তা টাইপ করুন...',
+            'mr': 'आपला संदेश टाइप करा...',
+            'gu': 'તમારો સંદેશ ટાઇપ કરો...'
+        };
+        
+        this.chatInput.placeholder = placeholders[this.currentLanguage] || 'Type your message...';
+    }
+}
+
+// Initialize chatbot when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    new MultilingualChatbot();
+});
+</script>

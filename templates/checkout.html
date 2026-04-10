@@ -1,0 +1,588 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - Cartify{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold">Checkout</h1>
+                <p class="lead text-muted">Complete your purchase securely</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{{ url_for('cart_page') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Cart
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Checkout Progress -->
+<section class="py-3">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: 100%"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-2">
+                    <span class="text-primary"><i class="fas fa-shopping-cart"></i> Cart</span>
+                    <span class="text-primary"><i class="fas fa-credit-card"></i> Checkout</span>
+                    <span class="text-muted"><i class="fas fa-check"></i> Confirmation</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Checkout Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Checkout Form -->
+            <div class="col-lg-8">
+                <form id="checkoutForm">
+                    <!-- Shipping Information -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-shipping-fast me-2"></i>Shipping Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="firstName" class="form-label">First Name *</label>
+                                    <input type="text" class="form-control" id="firstName" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="lastName" class="form-label">Last Name *</label>
+                                    <input type="text" class="form-control" id="lastName" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="email" class="form-label">Email Address *</label>
+                                    <input type="email" class="form-control" id="email" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="phone" class="form-label">Phone Number *</label>
+                                    <input type="tel" class="form-control" id="phone" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="address" class="form-label">Street Address *</label>
+                                    <input type="text" class="form-control" id="address" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="state" class="form-label">State/UT (India) *</label>
+                                    <select class="form-select" id="state" required>
+                                        <option value="">Select State/UT</option>
+                                        {% for state in indian_states %}
+                                        <option>{{ state }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="city" class="form-label">City/District *</label>
+                                    <select class="form-select" id="city" required>
+                                        <option value="">Select City/District</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="zipCode" class="form-label">PIN Code *</label>
+                                    <input type="text" class="form-control" id="zipCode" placeholder="110001" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="country" class="form-label">Country</label>
+                                    <input type="text" class="form-control" id="country" value="India" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shipping Method -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-truck me-2"></i>Shipping Method
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="shippingMethod" id="standard" value="standard" checked>
+                                <label class="form-check-label d-flex justify-content-between" for="standard">
+                                    <div>
+                                        <strong>Standard Shipping</strong>
+                                        <div class="text-muted">5-7 business days</div>
+                                    </div>
+                                    <span class="text-success">FREE</span>
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="shippingMethod" id="express" value="express">
+                                <label class="form-check-label d-flex justify-content-between" for="express">
+                                    <div>
+                                        <strong>Express Shipping</strong>
+                                        <div class="text-muted">2-3 business days</div>
+                                    </div>
+                                    <span>₹829</span>
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="shippingMethod" id="overnight" value="overnight">
+                                <label class="form-check-label d-flex justify-content-between" for="overnight">
+                                    <div>
+                                        <strong>Overnight Shipping</strong>
+                                        <div class="text-muted">Next business day</div>
+                                    </div>
+                                    <span>₹1,659</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Information -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-credit-card me-2"></i>Payment Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3 mb-3">
+                                <div class="col-12">
+                                    <label class="form-label">Select Payment Method *</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="paymentMethod" id="paymentUpi" value="upi" required>
+                                        <label class="form-check-label" for="paymentUpi">
+                                            UPI
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="paymentMethod" id="paymentCard" value="card" checked>
+                                        <label class="form-check-label" for="paymentCard">
+                                            Credit/Debit Card
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="paymentMethod" id="paymentCod" value="cod">
+                                        <label class="form-check-label" for="paymentCod">
+                                            Cash on Delivery (COD)
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="cardPaymentFields">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label for="cardNumber" class="form-label">Card Number *</label>
+                                        <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="expiryDate" class="form-label">Expiry Date *</label>
+                                        <input type="text" class="form-control" id="expiryDate" placeholder="MM/YY">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="cvv" class="form-label">CVV *</label>
+                                        <input type="text" class="form-control" id="cvv" placeholder="123">
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="cardName" class="form-label">Name on Card *</label>
+                                        <input type="text" class="form-control" id="cardName">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="upiPaymentFields" style="display: none;">
+                                <div class="col-12">
+                                    <label for="upiId" class="form-label">UPI ID *</label>
+                                    <input type="text" class="form-control" id="upiId" placeholder="yourupiid@bank">
+                                </div>
+                            </div>
+                            
+                            <!-- Payment Security -->
+                            <div class="mt-4 p-3 bg-light rounded">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-shield-alt text-success me-3" style="font-size: 1.5rem;"></i>
+                                    <div>
+                                        <strong>Secure Payment</strong>
+                                        <div class="text-muted small">Your payment information is encrypted and secure</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Notes -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-sticky-note me-2"></i>Order Notes (Optional)
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <textarea class="form-control" rows="3" placeholder="Add any special instructions for your order..." id="orderNotes"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="col-lg-4">
+                <div class="card sticky-top" style="top: 2rem;">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-receipt me-2"></i>Order Summary
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Cart Items -->
+                        <div class="cart-items mb-3">
+                            {% for item in cart_items %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="d-flex align-items-center">
+                                    <img src="https://via.placeholder.com/40x40/6366f1/ffffff?text={{ item.product.name[:2] }}" 
+                                         class="rounded me-2" alt="{{ item.product.name }}">
+                                    <div>
+                                        <div class="fw-bold">{{ item.product.name }}</div>
+                                        <small class="text-muted">Qty: {{ item.quantity }}</small>
+                                    </div>
+                                </div>
+                                <span>₹{{ "{:,.0f}".format(item.total) }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <hr>
+                        
+                        <!-- Price Breakdown -->
+                        <div class="price-breakdown">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span>₹{{ "{:,.0f}".format(total) }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Shipping:</span>
+                                <span class="text-success" id="shippingCost">FREE</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Tax:</span>
+                                <span>₹{{ "{:,.0f}".format(total * 0.18) }}</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-3">
+                                <strong>Total:</strong>
+                                <strong class="text-primary" id="orderTotal">₹{{ "{:,.0f}".format(total * 1.18) }}</strong>
+                            </div>
+                        </div>
+                        
+                        <!-- Place Order Button -->
+                        <div class="d-grid">
+                            <button type="submit" form="checkoutForm" class="btn btn-primary btn-lg" id="placeOrderBtn">
+                                <i class="fas fa-lock me-2"></i>Place Order
+                            </button>
+                        </div>
+                        
+                        <!-- Security Badges -->
+                        <div class="mt-4 text-center">
+                            <div class="row g-2">
+                                <div class="col-4">
+                                    <div class="text-center">
+                                        <i class="fas fa-shield-alt text-success" style="font-size: 1.5rem;"></i>
+                                        <div class="small text-muted">Secure</div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-center">
+                                        <i class="fas fa-credit-card text-primary" style="font-size: 1.5rem;"></i>
+                                        <div class="small text-muted">Encrypted</div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-center">
+                                        <i class="fas fa-undo text-warning" style="font-size: 1.5rem;"></i>
+                                        <div class="small text-muted">Protected</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Trust Indicators -->
+                        <div class="mt-4">
+                            <div class="text-center">
+                                <div class="small text-muted mb-2">We accept:</div>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <i class="fab fa-cc-visa text-primary" style="font-size: 1.5rem;"></i>
+                                    <i class="fab fa-cc-mastercard text-danger" style="font-size: 1.5rem;"></i>
+                                    <i class="fab fa-cc-amex text-info" style="font-size: 1.5rem;"></i>
+                                    <i class="fab fa-cc-discover text-warning" style="font-size: 1.5rem;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkoutForm = document.getElementById('checkoutForm');
+    const placeOrderBtn = document.getElementById('placeOrderBtn');
+    const shippingMethods = document.querySelectorAll('input[name="shippingMethod"]');
+    const shippingCostElement = document.getElementById('shippingCost');
+    const orderTotalElement = document.getElementById('orderTotal');
+    
+    const subtotal = {{ total }};
+    const tax = subtotal * 0.18;
+    
+    // Minimal State -> Cities mapping (sample). Extend as needed.
+    const stateToCities = {
+        "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore"],
+        "Arunachal Pradesh": ["Itanagar", "Naharlagun"],
+        "Assam": ["Guwahati", "Dibrugarh", "Silchar", "Jorhat"],
+        "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur"],
+        "Chhattisgarh": ["Raipur", "Bhilai", "Bilaspur", "Korba"],
+        "Goa": ["Panaji", "Margao", "Vasco da Gama"],
+        "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot"],
+        "Haryana": ["Faridabad", "Gurgaon", "Panipat", "Ambala"],
+        "Himachal Pradesh": ["Shimla", "Mandi", "Dharamshala", "Solan"],
+        "Jharkhand": ["Ranchi", "Jamshedpur", "Dhanbad", "Bokaro"],
+        "Karnataka": ["Bengaluru", "Mysuru", "Mangaluru", "Hubballi"],
+        "Kerala": ["Kochi", "Thiruvananthapuram", "Kozhikode", "Thrissur"],
+        "Madhya Pradesh": ["Indore", "Bhopal", "Gwalior", "Jabalpur"],
+        "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Thane"],
+        "Manipur": ["Imphal"],
+        "Meghalaya": ["Shillong"],
+        "Mizoram": ["Aizawl"],
+        "Nagaland": ["Kohima", "Dimapur"],
+        "Odisha": ["Bhubaneswar", "Cuttack", "Rourkela", "Berhampur"],
+        "Punjab": ["Ludhiana", "Amritsar", "Jalandhar", "Patiala"],
+        "Rajasthan": ["Jaipur", "Jodhpur", "Udaipur", "Kota"],
+        "Sikkim": ["Gangtok"],
+        "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli"],
+        "Telangana": ["Hyderabad", "Warangal", "Nizamabad"],
+        "Tripura": ["Agartala"],
+        "Uttar Pradesh": ["Lucknow", "Kanpur", "Ghaziabad", "Agra"],
+        "Uttarakhand": ["Dehradun", "Haridwar", "Roorkee", "Haldwani"],
+        "West Bengal": ["Kolkata", "Howrah", "Durgapur", "Siliguri"],
+        "Andaman and Nicobar Islands": ["Port Blair"],
+        "Chandigarh": ["Chandigarh"],
+        "Dadra and Nagar Haveli and Daman and Diu": ["Daman", "Silvassa"],
+        "Delhi": ["New Delhi", "Dwarka", "Rohini", "Saket"],
+        "Jammu and Kashmir": ["Srinagar", "Jammu"],
+        "Ladakh": ["Leh", "Kargil"],
+        "Lakshadweep": ["Kavaratti"],
+        "Puducherry": ["Puducherry", "Karaikal"]
+    };
+    
+    const stateSelect = document.getElementById('state');
+    const citySelect = document.getElementById('city');
+    const pinInput = document.getElementById('zipCode');
+
+    const paymentMethods = document.querySelectorAll('input[name="paymentMethod"]');
+    const cardPaymentFields = document.getElementById('cardPaymentFields');
+    const upiPaymentFields = document.getElementById('upiPaymentFields');
+
+    // Function to toggle payment fields visibility
+    function togglePaymentFields() {
+        const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+        if (selectedMethod === 'card') {
+            cardPaymentFields.style.display = 'block';
+            upiPaymentFields.style.display = 'none';
+            // Set required attribute for card fields
+            cardPaymentFields.querySelectorAll('input').forEach(input => input.setAttribute('required', 'true'));
+            upiPaymentFields.querySelectorAll('input').forEach(input => input.removeAttribute('required'));
+        } else if (selectedMethod === 'upi') {
+            cardPaymentFields.style.display = 'none';
+            upiPaymentFields.style.display = 'block';
+            // Set required attribute for UPI field
+            upiPaymentFields.querySelectorAll('input').forEach(input => input.setAttribute('required', 'true'));
+            cardPaymentFields.querySelectorAll('input').forEach(input => input.removeAttribute('required'));
+        } else {
+            // COD selected, hide all fields
+            cardPaymentFields.style.display = 'none';
+            upiPaymentFields.style.display = 'none';
+            cardPaymentFields.querySelectorAll('input').forEach(input => input.removeAttribute('required'));
+            upiPaymentFields.querySelectorAll('input').forEach(input => input.removeAttribute('required'));
+        }
+    }
+
+    // Initial call to set correct fields based on default checked radio
+    togglePaymentFields();
+
+    // Add event listeners to payment method radio buttons
+    paymentMethods.forEach(method => {
+        method.addEventListener('change', togglePaymentFields);
+    });
+    
+    // Populate cities when state changes
+    stateSelect.addEventListener('change', function() {
+        const state = this.value;
+        const cities = stateToCities[state] || [];
+        citySelect.innerHTML = '<option value="">Select City/District</option>' + cities.map(c => `<option>${c}</option>`).join('');
+    });
+    
+    // PIN code validation: 6 digits
+    pinInput.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+    });
+    
+    // Shipping method change handler
+    shippingMethods.forEach(method => {
+        method.addEventListener('change', function() {
+            let shippingCost = 0;
+            if (this.value === 'express') {
+                shippingCost = 829;
+                shippingCostElement.textContent = '₹829';
+            } else if (this.value === 'overnight') {
+                shippingCost = 1659;
+                shippingCostElement.textContent = '₹1,659';
+            } else {
+                shippingCost = 0;
+                shippingCostElement.textContent = 'FREE';
+            }
+            
+            const total = subtotal + shippingCost + tax;
+                            orderTotalElement.textContent = `₹${total.toLocaleString('en-IN')}`;
+        });
+    });
+    
+    // Form submission handler
+    checkoutForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading state
+        placeOrderBtn.disabled = true;
+        placeOrderBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+        
+        // Simulate order processing
+        setTimeout(() => {
+            fetch('/place_order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    shippingAddress: {
+                        firstName: document.getElementById('firstName').value,
+                        lastName: document.getElementById('lastName').value,
+                        email: document.getElementById('email').value,
+                        phone: document.getElementById('phone').value,
+                        address: document.getElementById('address').value,
+                        state: document.getElementById('state').value,
+                        city: document.getElementById('city').value,
+                        zipCode: document.getElementById('zipCode').value,
+                        country: document.getElementById('country').value,
+                    },
+                    paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value,
+                    // Include card details if paymentMethod is 'card'
+                    ...(document.querySelector('input[name="paymentMethod"]:checked').value === 'card' && {
+                        cardNumber: document.getElementById('cardNumber').value,
+                        expiryDate: document.getElementById('expiryDate').value,
+                        cvv: document.getElementById('cvv').value,
+                        cardName: document.getElementById('cardName').value,
+                    }),
+                    // Include UPI ID if paymentMethod is 'upi'
+                    ...(document.querySelector('input[name="paymentMethod"]:checked').value === 'upi' && {
+                        upiId: document.getElementById('upiId').value,
+                    }),
+                    orderNotes: document.getElementById('orderNotes') ? document.getElementById('orderNotes').value : '',
+                    shippingMethod: document.querySelector('input[name="shippingMethod"]:checked').value,
+                    totalAmount: parseFloat(orderTotalElement.textContent.replace('₹', '').replace(/,/g, '')),
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message and redirect
+                    const alertHtml = `
+                        <div class="alert alert-success alert-dismissible fade show position-fixed" 
+                             style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+                            <i class="fas fa-check-circle me-2"></i>${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
+                    document.body.insertAdjacentHTML('beforeend', alertHtml);
+
+                    setTimeout(() => {
+                        window.location.href = '/'; 
+                    }, 2000);
+                } else {
+                    // Show error message
+                    const alertHtml = `
+                        <div class="alert alert-danger alert-dismissible fade show position-fixed" 
+                             style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+                            <i class="fas fa-exclamation-circle me-2"></i>${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
+                    document.body.insertAdjacentHTML('beforeend', alertHtml);
+
+                    placeOrderBtn.disabled = false;
+                    placeOrderBtn.innerHTML = '<i class="fas fa-lock me-2"></i>Place Order';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const alertHtml = `
+                    <div class="alert alert-danger alert-dismissible fade show position-fixed" 
+                         style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+                        <i class="fas fa-exclamation-circle me-2"></i>An unexpected error occurred.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', alertHtml);
+
+                placeOrderBtn.disabled = false;
+                placeOrderBtn.innerHTML = '<i class="fas fa-lock me-2"></i>Place Order';
+            });
+        }, 1000); // Simulate network delay
+    });
+    
+    // Card number formatting
+    const cardNumber = document.getElementById('cardNumber');
+    cardNumber.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+        let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+        e.target.value = formattedValue;
+    });
+    
+    // Expiry date formatting
+    const expiryDate = document.getElementById('expiryDate');
+    expiryDate.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.slice(0, 2) + '/' + value.slice(2, 4);
+        }
+        e.target.value = value;
+    });
+    
+    // CVV formatting
+    const cvv = document.getElementById('cvv');
+    cvv.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+    });
+
+    // Payment method change handler
+    // This block is now redundant as togglePaymentFields handles it.
+    // Keeping it for now, but it can be removed if not used elsewhere.
+    // paymentMethods.forEach(method => {
+    //     method.addEventListener('change', function() {
+    //         if (this.value === 'upi') {
+    //             cardPaymentFields.style.display = 'none';
+    //             upiPaymentFields.style.display = 'block';
+    //         } else {
+    //             cardPaymentFields.style.display = 'block';
+    //             upiPaymentFields.style.display = 'none';
+    //         }
+    //     });
+    // });
+});
+</script>
+{% endblock %}

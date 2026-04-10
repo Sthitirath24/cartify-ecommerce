@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Order Tracking{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <h2 class="mb-4">Your Orders</h2>
+
+        {% if orders %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{ order.order_number }}</td>
+                        <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>₹{{ "{:,.0f}".format(order.total_amount) }}</td>
+                        <td><span class="badge bg-info">{{ order.order_status.capitalize() }}</span></td>
+                        <td><span class="badge bg-{{ 'success' if order.payment_status == 'completed' else 'warning' }}">{{ order.payment_status.capitalize() }}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#orderDetailModal{{ order.id }}">
+                                View Details
+                            </button>
+
+                            <!-- Order Detail Modal -->
+                            <div class="modal fade" id="orderDetailModal{{ order.id }}" tabindex="-1" aria-labelledby="orderDetailModalLabel{{ order.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-primary text-white">
+                                            <h5 class="modal-title" id="orderDetailModalLabel{{ order.id }}">Order #{{ order.order_number }} Details</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <h6>Order Information</h6>
+                                                    <p><strong>Date:</strong> {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                                                    <p><strong>Total Amount:</strong> ₹{{ "{:,.0f}".format(order.total_amount) }}</p>
+                                                    <p><strong>Order Status:</strong> <span class="badge bg-info">{{ order.order_status.capitalize() }}</span></p>
+                                                    <p><strong>Payment Status:</strong> <span class="badge bg-{{ 'success' if order.payment_status == 'completed' else 'warning' }}">{{ order.payment_status.capitalize() }}</span></p>
+                                                    <p><strong>Payment Method:</strong> {{ order.payment_method.capitalize() }}</p>
+                                                    <p><strong>Shipping Method:</strong> {{ order.shipping_method.capitalize() }}</p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h6>Shipping Address</h6>
+                                                    <p>{{ order.shipping_address }}</p>
+                                                    <p>{{ order.shipping_city }}, {{ order.shipping_state }} - {{ order.shipping_pincode }}</p>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <h6>Order Items</h6>
+                                            <ul class="list-group mb-3">
+                                                {% for item in order.order_items %}
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <strong>{{ item.product.name }}</strong> (x{{ item.quantity }})
+                                                    </div>
+                                                    <span>₹{{ "{:,.0f}".format(item.price * item.quantity) }}</span>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                            {% if order.notes %}
+                                            <h6>Order Notes</h6>
+                                            <p>{{ order.notes }}</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            You haven't placed any orders yet.
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

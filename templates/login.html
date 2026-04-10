@@ -1,0 +1,742 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Cartify{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Enhanced Login Page Styles */
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+    }
+    
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="0.5" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        animation: float 20s ease-in-out infinite;
+        z-index: -1;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-10px) rotate(1deg); }
+    }
+    
+    .login-container {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .login-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 25px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .login-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c);
+        background-size: 300% 100%;
+        animation: gradientShift 3s ease infinite;
+    }
+    
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    .logo-container {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+    
+    .logo-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        animation: pulse 2s infinite;
+        position: relative;
+    }
+    
+    .logo-icon::before {
+        content: '';
+        position: absolute;
+        top: -5px;
+        left: -5px;
+        right: -5px;
+        bottom: -5px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 50%;
+        z-index: -1;
+        opacity: 0.3;
+        animation: ripple 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    @keyframes ripple {
+        0% { transform: scale(1); opacity: 0.3; }
+        100% { transform: scale(1.2); opacity: 0; }
+    }
+    
+    .form-floating {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-floating input {
+        background: rgba(255, 255, 255, 0.8);
+        border: 2px solid rgba(102, 126, 234, 0.2);
+        border-radius: 15px;
+        padding: 1rem 1rem 1rem 3rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+    
+    .form-floating input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        background: rgba(255, 255, 255, 0.95);
+        transform: translateY(-2px);
+    }
+    
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #667eea;
+        z-index: 3;
+        transition: all 0.3s ease;
+    }
+    
+    .form-floating input:focus + .input-icon {
+        color: #764ba2;
+        transform: translateY(-50%) scale(1.1);
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 15px;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: white;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-login::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .btn-login:hover::before {
+        left: 100%;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-social {
+        border-radius: 15px;
+        padding: 0.8rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: 2px solid rgba(102, 126, 234, 0.2);
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+    }
+    
+    .btn-social:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        border-color: #667eea;
+    }
+    
+    .feature-card {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        padding: 2rem 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .feature-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+        color: white;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease forwards;
+    }
+    
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .fade-in-delay-1 { animation-delay: 0.2s; }
+    .fade-in-delay-2 { animation-delay: 0.4s; }
+    .fade-in-delay-3 { animation-delay: 0.6s; }
+    .fade-in-delay-4 { animation-delay: 0.8s; }
+    
+    .floating-shapes {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+    }
+    
+    .shape {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: floatShape 6s ease-in-out infinite;
+    }
+    
+    .shape:nth-child(1) {
+        width: 80px;
+        height: 80px;
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+    
+    .shape:nth-child(2) {
+        width: 120px;
+        height: 120px;
+        top: 60%;
+        right: 10%;
+        animation-delay: 2s;
+    }
+    
+    .shape:nth-child(3) {
+        width: 60px;
+        height: 60px;
+        bottom: 20%;
+        left: 20%;
+        animation-delay: 4s;
+    }
+    
+    @keyframes floatShape {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Floating Background Shapes -->
+<div class="floating-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+</div>
+
+<div class="container py-5 login-container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="login-card shadow-lg border-0 fade-in">
+                <div class="card-body p-5">
+                    <!-- Enhanced Header -->
+                    <div class="text-center mb-5 fade-in-delay-1">
+                        <div class="logo-container">
+                            <div class="logo-icon">
+                                {{ cartify_logo(60, 'white') }}
+                            </div>
+                        </div>
+                        <h2 class="fw-bold mb-2" style="color: #2d3748; font-size: 2.2rem;">Welcome Back!</h2>
+                        <p class="text-muted" style="font-size: 1.1rem;">Sign in to continue your shopping journey</p>
+                    </div>
+
+                    <!-- Password Login Form -->
+                    <form method="POST" action="{{ url_for('login') }}" class="fade-in-delay-2" id="passwordLoginForm">
+                        <div class="form-group mb-4">
+                            <label for="email" class="form-label" style="color: #4a5568; font-weight: 500; margin-bottom: 8px;">
+                                <i class="fas fa-envelope me-2" style="color: #667eea;"></i>Email Address
+                            </label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   placeholder="Enter your email" required
+                                   style="border-radius: 12px; padding: 14px 18px; border: 2px solid rgba(102, 126, 234, 0.2); transition: all 0.3s ease;">
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="password" class="form-label" style="color: #4a5568; font-weight: 500; margin-bottom: 8px;">
+                                <i class="fas fa-lock me-2" style="color: #667eea;"></i>Password
+                            </label>
+                            <div class="position-relative">
+                                <input type="password" class="form-control" id="password" name="password" 
+                                       placeholder="Enter your password" required
+                                       style="border-radius: 12px; padding: 14px 50px 14px 18px; border: 2px solid rgba(102, 126, 234, 0.2); transition: all 0.3s ease;">
+                                <button class="btn btn-link position-absolute" type="button" id="togglePassword"
+                                        style="right: 5px; top: 50%; transform: translateY(-50%); border: none; background: transparent; color: #667eea; padding: 8px;">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4 fade-in-delay-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="rememberMe" style="border-color: #667eea;">
+                                <label class="form-check-label" for="rememberMe" style="color: #4a5568;">
+                                    Remember me
+                                </label>
+                            </div>
+                            <a href="#" class="text-decoration-none forgot-password-link" style="color: #667eea; font-weight: 500;">Forgot password?</a>
+                        </div>
+
+                        <div class="d-grid mb-4">
+                            <button type="submit" class="btn btn-login btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Enhanced Divider -->
+                    <div class="text-center my-5 fade-in-delay-3">
+                        <div class="position-relative">
+                            <hr style="border-color: rgba(102, 126, 234, 0.2);">
+                            <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted" 
+                                  style="font-size: 0.9rem; color: #667eea;">or continue with</span>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Social Login -->
+                    <div class="d-grid gap-3 mb-5 fade-in-delay-4">
+                        <a href="https://accounts.google.com/o/oauth2/auth?client_id=YOUR_CLIENT_ID&redirect_uri={{ url_for('home', _external=True) }}&response_type=code&scope=email profile" class="btn btn-social text-decoration-none">
+                            <i class="fab fa-google me-2" style="color: #db4437;"></i>Continue with Google
+                        </a>
+                        <a href="https://www.facebook.com/v12.0/dialog/oauth?client_id=YOUR_APP_ID&redirect_uri={{ url_for('home', _external=True) }}&scope=email,public_profile" class="btn btn-social text-decoration-none">
+                            <i class="fab fa-facebook-f me-2" style="color: #4267B2;"></i>Continue with Facebook
+                        </a>
+                    </div>
+
+                    <!-- Enhanced Sign Up Link -->
+                    <div class="text-center fade-in-delay-4">
+                        <p class="mb-0" style="color: #4a5568;">Don't have an account? 
+                            <a href="{{ url_for('signup') }}" class="text-decoration-none fw-bold" 
+                               style="color: #667eea; transition: all 0.3s ease;">Create one now</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Features -->
+            <div class="row mt-5 g-4">
+                <div class="col-md-4">
+                    <div class="feature-card fade-in">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                        <h6 class="mb-2" style="color: #2d3748; font-weight: 600;">Lightning Fast</h6>
+                        <p class="text-muted small mb-0">Free shipping on orders over ₹4,150 with express delivery</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card fade-in" style="animation-delay: 0.2s;">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h6 class="mb-2" style="color: #2d3748; font-weight: 600;">Bank-Level Security</h6>
+                        <p class="text-muted small mb-0">256-bit SSL encryption ensures your data is protected</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card fade-in" style="animation-delay: 0.4s;">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <i class="fas fa-undo"></i>
+                        </div>
+                        <h6 class="mb-2" style="color: #2d3748; font-weight: 600;">Hassle-Free Returns</h6>
+                        <p class="text-muted small mb-0">30-day return policy with free pickup and instant refunds</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function showNotification(message, type) {
+    const alert = document.createElement('div');
+    const alertType = type === 'error' ? 'danger' : type;
+    alert.className = `alert alert-${alertType} alert-dismissible fade show position-fixed`;
+    alert.style.cssText = `
+        top: 20px; 
+        right: 20px; 
+        z-index: 9999; 
+        min-width: 350px; 
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        border: none;
+        animation: slideInRight 0.3s ease;
+    `;
+    
+    const icon = type === 'success' ? 'fas fa-check-circle' : 
+                type === 'error' ? 'fas fa-exclamation-circle' : 
+                'fas fa-info-circle';
+    const bgColor = type === 'success' ? 'linear-gradient(135deg, #10b981, #059669)' : 
+                   type === 'error' ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 
+                   'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+    
+    alert.innerHTML = `
+        <div style="background: ${bgColor}; color: white; padding: 15px 20px; border-radius: 15px;">
+            <div class="d-flex align-items-center">
+                <i class="${icon} me-3" style="font-size: 1.2rem;"></i>
+                <span style="font-weight: 500;">${message}</span>
+                <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(alert);
+    
+    setTimeout(() => {
+        alert.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => {
+            alert.remove();
+        }, 300);
+    }, 4000);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Enhanced animations and interactions
+    initializeAnimations();
+    initializePasswordToggle();
+    initializeFormValidation();
+    initializeSocialButtons();
+    
+    function initializeAnimations() {
+        // Add staggered animation to feature cards
+        const featureCards = document.querySelectorAll('.feature-card');
+        featureCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.2}s`;
+        });
+        
+        // Add hover effects to social buttons
+        const socialButtons = document.querySelectorAll('.btn-social');
+        socialButtons.forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-3px) scale(1.02)';
+            });
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    }
+    
+    function initializePasswordToggle() {
+        const togglePassword = document.getElementById('togglePassword');
+        const password = document.getElementById('password');
+        
+        if (togglePassword && password) {
+            togglePassword.addEventListener('click', function() {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-eye');
+                icon.classList.toggle('fa-eye-slash');
+                
+                // Add animation to the toggle button
+                this.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+        }
+    }
+    
+    function initializeFormValidation() {
+        const form = document.querySelector('form');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const submitButton = document.querySelector('.btn-login');
+        
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const email = emailInput.value.trim();
+                const password = passwordInput.value.trim();
+                
+                if (!email || !password) {
+                    e.preventDefault();
+                    showNotification('Please fill in all required fields.', 'error');
+                    return;
+                }
+                
+                if (!isValidEmail(email)) {
+                    e.preventDefault();
+                    showNotification('Please enter a valid email address.', 'error');
+                    return;
+                }
+                
+                // Add loading state to submit button
+                if (submitButton) {
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Signing In...';
+                    submitButton.disabled = true;
+                }
+            });
+        }
+        
+        // Real-time validation
+        if (emailInput) {
+            emailInput.addEventListener('blur', function() {
+                if (this.value && !isValidEmail(this.value)) {
+                    this.style.borderColor = '#ef4444';
+                    showFieldError(this, 'Please enter a valid email address');
+                } else {
+                    this.style.borderColor = '#10b981';
+                    hideFieldError(this);
+                }
+            });
+        }
+        
+        if (passwordInput) {
+            passwordInput.addEventListener('blur', function() {
+                if (this.value && this.value.length < 6) {
+                    this.style.borderColor = '#ef4444';
+                    showFieldError(this, 'Password must be at least 6 characters');
+                } else if (this.value) {
+                    this.style.borderColor = '#10b981';
+                    hideFieldError(this);
+                }
+            });
+        }
+    }
+    
+    function initializeSocialButtons() {
+        const googleBtn = document.querySelector('.btn-social:first-of-type');
+        const facebookBtn = document.querySelector('.btn-social:last-of-type');
+        
+        if (googleBtn) {
+            googleBtn.addEventListener('click', function() {
+                showNotification('Google login coming soon!', 'info');
+            });
+        }
+        
+        if (facebookBtn) {
+            facebookBtn.addEventListener('click', function() {
+                showNotification('Facebook login coming soon!', 'info');
+            });
+        }
+    }
+    
+    function showFieldError(input, message) {
+        hideFieldError(input); // Remove existing error
+        
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'field-error';
+        errorDiv.style.cssText = `
+            color: #ef4444;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            animation: fadeIn 0.3s ease;
+        `;
+        errorDiv.textContent = message;
+        
+        input.parentNode.appendChild(errorDiv);
+    }
+    
+    function hideFieldError(input) {
+        const existingError = input.parentNode.querySelector('.field-error');
+        if (existingError) {
+            existingError.remove();
+        }
+    }
+    
+});
+
+
+// Forgot password modal
+document.querySelector('.forgot-password-link').addEventListener('click', function(e) {
+    e.preventDefault();
+    showForgotPasswordModal();
+});
+
+function showForgotPasswordModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.innerHTML = `
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                <div class="modal-header" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 20px 20px 0 0; border: none;">
+                    <h5 class="modal-title"><i class="fas fa-key me-2"></i>Forgot Password</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-4">Enter your email address and we'll send you a link to reset your password.</p>
+                    <div class="mb-3">
+                        <input type="email" class="form-control" id="resetEmail" placeholder="Enter your email" style="border-radius: 12px; padding: 14px 18px; border: 2px solid rgba(102, 126, 234, 0.2);">
+                    </div>
+                    <div class="d-grid">
+                        <button type="button" class="btn" id="sendResetBtn" style="background: linear-gradient(135deg, #667eea, #764ba2); border: none; border-radius: 12px; padding: 14px; color: white; font-weight: 600;">
+                            <i class="fas fa-paper-plane me-2"></i>Send Reset Link
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    
+    // Send reset email
+    document.getElementById('sendResetBtn').addEventListener('click', async function() {
+        const email = document.getElementById('resetEmail').value.trim();
+        
+        if (!email) {
+            showNotification('Please enter your email address.', 'error');
+            return;
+        }
+        
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+        
+        try {
+            const response = await fetch('/forgot-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: email })
+            });
+            
+            const data = await response.json();
+            showNotification(data.message, data.success ? 'success' : 'error');
+            
+            if (data.success) {
+                bsModal.hide();
+            }
+        } catch (error) {
+            showNotification('An error occurred. Please try again.', 'error');
+        } finally {
+            this.disabled = false;
+            this.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Send Reset Link';
+        }
+    });
+    
+    modal.addEventListener('hidden.bs.modal', function() {
+        modal.remove();
+    });
+}
+
+// Add CSS animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .form-floating input:focus {
+        transform: translateY(-2px) scale(1.02);
+    }
+    
+    .btn-login:active {
+        transform: translateY(-1px) scale(0.98);
+    }
+    
+    .feature-card:hover .feature-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+    
+    .feature-icon {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %} 

@@ -1,0 +1,17 @@
+=== Cartify Database Information ===
+
+Total Products: 363
+Active Products: 363
+Database Path: mysql+pymysql://cartify:cartify123@localhost:3306/cartify_db
+Last Updated: 2026-04-10 10:17:41
+
+Categories:
+  Automotive: 31 products
+  Beauty & Health: 47 products
+  Books & Media: 47 products
+  Clothing: 46 products
+  Electronics: 53 products
+  Food & Beverages: 2 products
+  Home & Garden: 49 products
+  Sports & Outdoors: 47 products
+  Toys & Games: 41 products

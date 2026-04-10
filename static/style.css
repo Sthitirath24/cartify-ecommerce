@@ -1,0 +1,107 @@
+/* Global Reset & Base */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    background: #f1f3f6; /* Flipkart-like light gray */
+    color: #212121;
+}
+
+a, a:visited {
+    color: inherit;
+}
+
+.container { 
+    max-width: 1200px;
+}
+
+/* Header */
+.fk-header { 
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+}
+.fk-header .brand {
+    color: #fff;
+}
+.fk-search .form-control {
+    height: 42px;
+}
+.fk-search .btn {
+    height: 42px;
+}
+
+/* Category Bar */
+.category-bar {
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+}
+.category-bar .cat-link {
+    color: #212121;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 12px 10px;
+    border-radius: 8px;
+}
+.category-bar .cat-link:hover {
+    background: #f0f5ff;
+}
+
+/* Cards */
+.card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: none;
+}
+.card:hover {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+.product-card .card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+.product-card .price {
+    color: #212121;
+}
+
+/* Buttons */
+.btn-primary {
+    background: #2874f0;
+    border-color: #2874f0;
+}
+.btn-primary:hover {
+    background: #1658c5;
+    border-color: #1658c5;
+}
+.btn-outline-primary {
+    color: #2874f0;
+    border-color: #2874f0;
+}
+.btn-outline-primary:hover {
+    background: #e8f0fe;
+}
+
+/* Badges */
+.badge.bg-success {
+    background-color: #26a541 !important; /* Flipkart green */
+}
+
+/* Footer */
+.footer {
+    background: #172337;
+    color: #fff;
+}
+.footer a {
+    color: #bdc3c7;
+}
+.footer a:hover {
+    color: #fff;
+}
+
+/* Utilities */
+.text-muted { color: #878787 !important; }
+.price { font-weight: 700; }
+.rating i { color: #ffa000; }
+
+/* Forms */
+.form-control { border-radius: 8px; } 

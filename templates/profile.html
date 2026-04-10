@@ -1,0 +1,642 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Cartify{% endblock %}
+
+{% block content %}
+<!-- Redeem Points Modal -->
+<div class="modal fade" id="redeemModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-gift text-primary me-2"></i>Redeem Loyalty Points</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <h2 class="text-primary mb-0">{{ loyalty.points }}</h2>
+                    <small class="text-muted">Available Points</small>
+                </div>
+                <p class="text-muted small">Redeem your points for discounts on your next purchase. (100 points = ₹50)</p>
+                <div class="mb-3">
+                    <label class="form-label">Points to Redeem</label>
+                    <input type="range" class="form-range" id="redeemPoints" min="100" max="{{ loyalty.points }}" step="100" value="100" oninput="updateRedeemValue(this.value)">
+                    <div class="d-flex justify-content-between">
+                        <small class="text-muted">100 pts</small>
+                        <small class="text-primary fw-bold" id="redeemValue">100 points = ₹50</small>
+                        <small class="text-muted">{{ loyalty.points }} pts</small>
+                    </div>
+                </div>
+                <div id="redeemMessage" class="alert d-none"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="redeemPoints()">Redeem Now</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Page Header -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold">My Profile</h1>
+                <p class="lead text-muted">Manage your account and view your orders</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{{ url_for('home') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-home me-2"></i>Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Profile Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 mb-4 mb-lg-0">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <div class="profile-avatar mb-3">
+                            <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                <i class="fas fa-user text-primary" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
+                        <h5 class="mb-1">{{ user.username }}</h5>
+                        <p class="text-muted small mb-3">{{ loyalty.tier.title() }} Member</p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit me-2"></i>Edit Profile
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-shield-alt me-2"></i>Security Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loyalty Points Card -->
+                <div class="card shadow-sm border-0 mt-3">
+                    <div class="card-header bg-white border-0 border-bottom">
+                        <h6 class="mb-0">
+                            <i class="fas fa-gem text-warning me-2"></i>Cartify Rewards
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <div class="loyalty-tier-badge mb-2">
+                                <span class="badge bg-{{ 'secondary' if loyalty.tier == 'bronze' else 'info' if loyalty.tier == 'silver' else 'warning' if loyalty.tier == 'gold' else 'primary' }} fs-6 px-3 py-2">
+                                    <i class="fas fa-{{ 'medal' if loyalty.tier == 'bronze' else 'star' if loyalty.tier == 'silver' else 'crown' if loyalty.tier == 'gold' else 'gem' }} me-1"></i>
+                                    {{ loyalty.tier.title() }}
+                                </span>
+                            </div>
+                            <h3 class="mb-0 text-primary">{{ loyalty.points }}</h3>
+                            <small class="text-muted">Available Points</small>
+                        </div>
+                        
+                        {% if loyalty.next_tier %}
+                        {% set progress_percent = (loyalty.lifetime_points / loyalty.next_tier.threshold * 100) | int %}
+                        <div class="mb-3">
+                            <small class="text-muted d-flex justify-content-between">
+                                <span>Progress to {{ loyalty.next_tier.name }}</span>
+                                <span>{{ loyalty.lifetime_points }} / {{ loyalty.next_tier.threshold }}</span>
+                            </small>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: {{ progress_percent }}%;"></div>
+                            </div>
+                            <small class="text-muted">{{ loyalty.next_tier.points_needed }} points needed</small>
+                        </div>
+                        {% endif %}
+                        
+                        <hr>
+                        
+                        <h6 class="small fw-bold mb-2">Your Benefits:</h6>
+                        <ul class="list-unstyled small text-muted mb-3">
+                            <li><i class="fas fa-check text-success me-2"></i>{{ loyalty.get_tier_benefits().discount }}% extra discount</li>
+                            <li><i class="fas fa-check text-success me-2"></i>{{ loyalty.get_tier_benefits().points_multiplier }}x points on purchases</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Free shipping above ₹{{ loyalty.get_tier_benefits().free_shipping_threshold }}</li>
+                        </ul>
+                        
+                        {% if loyalty.points >= 100 %}
+                        <button class="btn btn-primary btn-sm w-100" onclick="showRedeemModal()">
+                            <i class="fas fa-gift me-2"></i>Redeem Points
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Points History -->
+                <div class="card shadow-sm border-0 mt-3">
+                    <div class="card-header bg-white border-0 border-bottom">
+                        <h6 class="mb-0">
+                            <i class="fas fa-history text-info me-2"></i>Recent Activity
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            {% for transaction in transactions[:5] %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="fw-bold">{{ transaction.reason[:25] }}{% if transaction.reason|length > 25 %}...{% endif %}</small>
+                                    <br><small class="text-muted" style="font-size: 0.7rem;">{{ transaction.created_at.strftime('%d %b %Y') }}</small>
+                                </div>
+                                <span class="badge bg-{{ 'success' if transaction.points > 0 else 'danger' }}">
+                                    {{ '+' if transaction.points > 0 }}{{ transaction.points }}
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white border-0 border-bottom">
+                        <ul class="nav nav-tabs card-header-tabs" id="profileTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link active" href="#profile" data-bs-toggle="tab">
+                                    <i class="fas fa-user me-2"></i>Profile
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link" href="#orders" data-bs-toggle="tab">
+                                    <i class="fas fa-shopping-bag me-2"></i>Orders
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link" href="#wishlist" data-bs-toggle="tab">
+                                    <i class="fas fa-heart me-2"></i>Wishlist
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link" href="#addresses" data-bs-toggle="tab">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Addresses
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link" href="#settings" data-bs-toggle="tab">
+                                    <i class="fas fa-cog me-2"></i>Settings
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="profileTabsContent">
+                            <!-- Profile Tab -->
+                            <div class="tab-pane fade show active" id="profile" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="text-muted mb-0">Personal Information</h6>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="toggleEditMode()">
+                                        <i class="fas fa-edit me-1"></i><span id="editBtnText">Edit</span>
+                                    </button>
+                                </div>
+                                
+                                <!-- View Mode -->
+                                <div id="profileView">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="mb-2"><strong>Username:</strong> {{ user.username }}</p>
+                                            <p class="mb-2"><strong>Email:</strong> {{ user.email }}</p>
+                                            <p class="mb-2"><strong>Phone:</strong> {{ user.phone or 'Not set' }}</p>
+                                            <p class="mb-0"><strong>Member Since:</strong> {{ user.created_at.strftime('%b %Y') }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="mb-2"><strong>Name:</strong> {{ user.first_name or '' }} {{ user.last_name or '' }}</p>
+                                            <p class="mb-2"><strong>Address:</strong> {{ user.address or 'Not set' }}</p>
+                                            <p class="mb-2"><strong>City:</strong> {{ user.city or 'Not set' }}</p>
+                                            <p class="mb-0"><strong>State:</strong> {{ user.state or 'Not set' }} {{ user.pincode or '' }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Edit Mode -->
+                                <div id="profileEdit" style="display: none;">
+                                    <form id="profileForm">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">First Name</label>
+                                                <input type="text" class="form-control" name="first_name" value="{{ user.first_name or '' }}">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Last Name</label>
+                                                <input type="text" class="form-control" name="last_name" value="{{ user.last_name or '' }}">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Email</label>
+                                                <input type="email" class="form-control" name="email" value="{{ user.email }}" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Phone</label>
+                                                <input type="tel" class="form-control" name="phone" value="{{ user.phone or '' }}">
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">Address</label>
+                                                <textarea class="form-control" name="address" rows="2">{{ user.address or '' }}</textarea>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">City</label>
+                                                <input type="text" class="form-control" name="city" value="{{ user.city or '' }}">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">State</label>
+                                                <input type="text" class="form-control" name="state" value="{{ user.state or '' }}">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Pincode</label>
+                                                <input type="text" class="form-control" name="pincode" value="{{ user.pincode or '' }}">
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save me-2"></i>Save Changes
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary ms-2" onclick="toggleEditMode()">Cancel</button>
+                                        </div>
+                                    </form>
+                                    <div id="profileMessage" class="alert mt-3 d-none"></div>
+                                </div>
+                                
+                                <hr class="my-4">
+                                
+                                <h6 class="text-muted mb-3">Account Stats</h6>
+                                <div class="row g-2">
+                                    <div class="col-4">
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body p-2 text-center">
+                                                <h5 class="mb-0">{{ orders|length }}</h5>
+                                                <small class="text-muted">Orders</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body p-2 text-center">
+                                                <h5 class="mb-0">{{ loyalty.points }}</h5>
+                                                <small class="text-muted">Points</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body p-2 text-center">
+                                                <h5 class="mb-0">{{ loyalty.tier.title() }}</h5>
+                                                <small class="text-muted">Tier</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Orders Tab -->
+                            <div class="tab-pane fade" id="orders" role="tabpanel">
+                                <h6 class="text-muted mb-3">Recent Orders</h6>
+                                <div class="table-responsive mb-3">
+                                    <table class="table align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th>Order ID</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                                <th>Total (₹)</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>#CF1234</td>
+                                                <td>12 Nov 2025</td>
+                                                <td><span class="badge bg-success">Delivered</span></td>
+                                                <td>₹89.99</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary">
+                                                        View
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>#CF1233</td>
+                                                <td>05 Nov 2025</td>
+                                                <td><span class="badge bg-warning text-dark">In Transit</span></td>
+                                                <td>₹199.99</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary">
+                                                        Track
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>#CF1232</td>
+                                                <td>28 Oct 2025</td>
+                                                <td><span class="badge bg-secondary">Cancelled</span></td>
+                                                <td>₹24.99</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary">
+                                                        Details
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <h6 class="text-muted mb-3">Order Insights</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="card border-0 bg-light h-100">
+                                            <div class="card-body">
+                                                <h3 class="mb-0">₹15,499</h3>
+                                                <small class="text-muted">Total spent in last 3 months</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card border-0 bg-light h-100">
+                                            <div class="card-body">
+                                                <h3 class="mb-0">92%</h3>
+                                                <small class="text-muted">On-time delivery rate</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card border-0 bg-light h-100">
+                                            <div class="card-body">
+                                                <h3 class="mb-0">4.7</h3>
+                                                <small class="text-muted">Average product rating</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Wishlist Tab -->
+                            <div class="tab-pane fade" id="wishlist" role="tabpanel">
+                                <h6 class="text-muted mb-3">Wishlist</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="card product-card h-100">
+                                            <div class="position-relative">
+                                                <img src="https://via.placeholder.com/300x200/6366f1/ffffff?text=Wishlist+Item+1" 
+                                                     class="card-img-top" alt="Wishlist Item 1">
+                                                <button class="btn btn-light btn-sm position-absolute top-0 end-0 m-2">
+                                                    <i class="fas fa-heart text-danger"></i>
+                                                </button>
+                                            </div>
+                                            <div class="card-body">
+                                                <h6 class="card-title mb-1">Premium Headphones</h6>
+                                                <p class="card-text text-muted small mb-2">Noise-cancelling with 30h battery life</p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="price">₹129.99</div>
+                                                    <button class="btn btn-outline-primary btn-sm">
+                                                        <i class="fas fa-cart-plus me-1"></i>Add to Cart
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card product-card h-100">
+                                            <div class="position-relative">
+                                                <img src="https://via.placeholder.com/300x200/8b5cf6/ffffff?text=Wishlist+Item+2" 
+                                                     class="card-img-top" alt="Wishlist Item 2">
+                                                <button class="btn btn-light btn-sm position-absolute top-0 end-0 m-2">
+                                                    <i class="fas fa-heart text-danger"></i>
+                                                </button>
+                                            </div>
+                                            <div class="card-body">
+                                                <h6 class="card-title mb-1">Smartwatch Series 5</h6>
+                                                <p class="card-text text-muted small mb-2">Heart rate, GPS, and sleep tracking</p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="price">₹299.99</div>
+                                                    <button class="btn btn-outline-primary btn-sm">
+                                                        <i class="fas fa-cart-plus me-1"></i>Add to Cart
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Addresses Tab -->
+                            <div class="tab-pane fade" id="addresses" role="tabpanel">
+                                <h6 class="text-muted mb-3">Saved Addresses</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="card border-0 bg-light h-100">
+                                            <div class="card-body">
+                                                <h6 class="card-title mb-1">Home</h6>
+                                                <p class="card-text text-muted small mb-2">
+                                                    123, Bypass Road,<br>
+                                                    Ganjam, Odisha - 500081
+                                                </p>
+                                                <div class="d-flex justify-content-between">
+                                                    <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                                    <button class="btn btn-sm btn-outline-danger">Remove</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card border-0 bg-light h-100">
+                                            <div class="card-body">
+                                                <h6 class="card-title mb-1">Office</h6>
+                                                <p class="card-text text-muted small mb-2">
+                                                    456, Balaram Nagar,<br>
+                                                    Gunupur, Rayagada - 500081
+                                                </p>
+                                                <div class="d-flex justify-content-between">
+                                                    <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                                    <button class="btn btn-sm btn-outline-danger">Remove</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary btn-sm mt-3">
+                                    <i class="fas fa-plus me-2"></i>Add New Address
+                                </button>
+                            </div>
+
+                            <!-- Settings Tab -->
+                            <div class="tab-pane fade" id="settings" role="tabpanel">
+                                <h6 class="text-muted mb-3">Account Settings</h6>
+                                <form>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Email Notifications</label>
+                                            <select class="form-select">
+                                                <option>All notifications</option>
+                                                <option>Only important</option>
+                                                <option>Order related only</option>
+                                                <option>None</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Two-Factor Authentication</label>
+                                            <select class="form-select">
+                                                <option>Disabled</option>
+                                                <option>SMS</option>
+                                                <option>Authenticator App</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Language</label>
+                                            <select class="form-select">
+                                                <option>English (India)</option>
+                                                <option>Hindi</option>
+                                                <option>Odia</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Currency</label>
+                                            <select class="form-select">
+                                                <option selected>₹ INR - Indian Rupee</option>
+                                                <option disabled>$ USD - US Dollar</option>
+                                                <option disabled>€ EUR - Euro</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button class="btn btn-primary">
+                                            <i class="fas fa-save me-2"></i>Save Changes
+                                        </button>
+                                        <button class="btn btn-outline-secondary ms-2">
+                                            <i class="fas fa-undo me-2"></i>Reset
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Notice -->
+                <div class="alert alert-info d-flex align-items-center mb-0" role="alert">
+                    <i class="fas fa-lock me-3"></i>
+                    <div>
+                        <strong>Security tip:</strong> Cartify will never ask you for your password or OTP in chat or email.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block extra_js %}
+<script>
+    // Profile Edit Functions
+    let isEditMode = false;
+    
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        const viewDiv = document.getElementById('profileView');
+        const editDiv = document.getElementById('profileEdit');
+        const editBtnText = document.getElementById('editBtnText');
+        
+        if (isEditMode) {
+            viewDiv.style.display = 'none';
+            editDiv.style.display = 'block';
+            editBtnText.textContent = 'Cancel';
+        } else {
+            viewDiv.style.display = 'block';
+            editDiv.style.display = 'none';
+            editBtnText.textContent = 'Edit';
+        }
+    }
+    
+    // Profile Form Submit
+    document.getElementById('profileForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+        
+        const messageDiv = document.getElementById('profileMessage');
+        
+        try {
+            const response = await fetch('/api/profile/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            messageDiv.classList.remove('d-none', 'alert-success', 'alert-danger');
+            
+            if (result.success) {
+                messageDiv.classList.add('alert-success');
+                messageDiv.innerHTML = `<i class="fas fa-check-circle me-2"></i>${result.message}`;
+                
+                // Reload page after 1.5 seconds
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                messageDiv.classList.add('alert-danger');
+                messageDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>${result.message}`;
+            }
+        } catch (error) {
+            messageDiv.classList.remove('d-none');
+            messageDiv.classList.add('alert-danger');
+            messageDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>Failed to update profile. Please try again.';
+        }
+    });
+    
+    // Redeem Modal Functions
+    function showRedeemModal() {
+        const modal = new bootstrap.Modal(document.getElementById('redeemModal'));
+        modal.show();
+    }
+    
+    function updateRedeemValue(value) {
+        const discount = value * 0.5;
+        document.getElementById('redeemValue').textContent = `${value} points = ₹${discount}`;
+    }
+    
+    async function redeemPoints() {
+        const points = parseInt(document.getElementById('redeemPoints').value);
+        const messageDiv = document.getElementById('redeemMessage');
+        
+        try {
+            const response = await fetch('/api/loyalty/redeem', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ points: points })
+            });
+            
+            const data = await response.json();
+            
+            messageDiv.classList.remove('d-none', 'alert-success', 'alert-danger');
+            
+            if (data.success) {
+                messageDiv.classList.add('alert-success');
+                messageDiv.innerHTML = `<i class="fas fa-check-circle me-2"></i>${data.message}`;
+                
+                // Reload page after 2 seconds to show updated points
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                messageDiv.classList.add('alert-danger');
+                messageDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>${data.message}`;
+            }
+        } catch (error) {
+            messageDiv.classList.remove('d-none');
+            messageDiv.classList.add('alert-danger');
+            messageDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>Failed to redeem points. Please try again.';
+        }
+    }
+</script>
+{% endblock %}
+{% endblock %}

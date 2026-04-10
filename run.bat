@@ -1,0 +1,6 @@
+@echo off
+cd /d "%~dp0"
+echo Initializing sample data...
+python init_sample_data.py
+echo Starting Flask application...
+python app.py

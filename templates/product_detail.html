@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Product Details{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row gx-5">
+            <aside class="col-lg-6">
+                <div class="border rounded-4 mb-3 d-flex justify-content-center">
+                    <a data-fslightbox="mygalley" class="rounded-4" target="_blank" data-type="image" href="{{ product.image_url }}">
+                        <img style="max-width: 100%; max-height: 400px; margin: auto;" class="rounded-4 fit" src="{{ product.image_url }}" />
+                    </a>
+                </div>
+            </aside>
+            <main class="col-lg-6">
+                <div class="ps-lg-3">
+                    <h4 class="title text-dark">
+                        {{ product.name }} <br />
+                    </h4>
+                    <div class="d-flex flex-row my-3">
+                        <div class="text-warning mb-1 me-2">
+                            {% for i in range(5) %}
+                                {% if i < product.rating|int %}
+                                    <i class="fa fa-star"></i>
+                                {% elif product.rating - i >= 0.5 %}
+                                    <i class="fa fa-star-half-stroke"></i>
+                                {% else %}
+                                    <i class="fa-regular fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ms-1">{{ product.rating|round(1) }}</span>
+                        </div>
+                        <span class="text-muted"><i class="fa fa-shopping-basket fa-sm mx-1"></i>{{ product.review_count }} orders</span>
+                        <span class="text-success ms-2">{{ product.stock_quantity }} in stock</span>
+                    </div>
+
+                    <div class="mb-3">
+                        <span class="h5">₹{{ "{:,.0f}".format(product.price) }}</span>
+                        <span class="text-muted">/per item</span>
+                    </div>
+
+                    <p>
+                        {{ product.description }}
+                    </p>
+
+                    <div class="row">
+                        <dt class="col-3">Category:</dt>
+                        <dd class="col-9">{{ product.category }}</dd>
+
+                        <dt class="col-3">Delivery:</dt>
+                        <dd class="col-9">Worldwide</dd>
+
+                        <dt class="col-3">Seller:</dt>
+                        <dd class="col-9">Cartify Store</dd>
+                    </div>
+
+                    <hr />
+
+                    <div class="row mb-4">
+                        <div class="col-md-4 col-6">
+                            <label class="mb-2">Quantity</label>
+                            <div class="input-group mb-3" style="width: 170px;">
+                                <button class="btn btn-white border border-secondary px-3" type="button" id="button-addon1" data-mdb-ripple-color="dark" onclick="this.parentNode.querySelector('input[type=number]').stepDown()">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number" class="form-control text-center border border-secondary" value="1" min="1" max="{{ product.stock_quantity }}" aria-label="Example text with button addon" aria-describedby="button-addon1" id="product-quantity" />
+                                <button class="btn btn-white border border-secondary px-3" type="button" id="button-addon2" data-mdb-ripple-color="dark" onclick="this.parentNode.querySelector('input[type=number]').stepUp()">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#" class="btn btn-warning shadow-0">
+                        <i class="me-1 fa fa-shopping-basket"></i> Buy now
+                    </a>
+                    <a href="#" class="btn btn-primary shadow-0 add-to-cart-detail" data-product-id="{{ product.id }}">
+                        <i class="me-1 fa fa-cart-plus"></i> Add to cart
+                    </a>
+                    <a href="#" class="btn btn-light border border-secondary py-2 icon-hover px-3">
+                        <i class="me-1 fa fa-heart fa-lg"></i>
+                    </a>
+                </div>
+            </main>
+        </div>
+    </div>
+</section>
+<!-- End Product Detail -->
+
+<!-- Related products -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="mb-3">Related products</h2>
+        <div class="row">
+            {% for related_product in related_products %}
+            <div class="col-lg-3 col-md-6 col-sm-6 d-flex">
+                <div class="card w-100 my-2 shadow-2-strong">
+                    <a href="{{ url_for('product_detail', product_id=related_product.id) }}">
+                        <img src="{{ related_product.image_url }}" class="card-img-top" style="aspect-ratio: 1 / 1; object-fit: cover;" />
+                    </a>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ related_product.name }}</h5>
+                        <p class="card-text">₹{{ "{:,.0f}".format(related_product.price) }}</p>
+                        <div class="card-footer d-flex align-items-end pt-3 px-0 pb-0 mt-auto">
+                            <a href="{{ url_for('product_detail', product_id=related_product.id) }}" class="btn btn-primary shadow-0 me-1">View Details</a>
+                            <a href="#" class="btn btn-light border icon-hover px-2 pt-2"><i class="fas fa-heart fa-lg text-secondary px-1"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<!-- End Related products -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add to cart functionality for the detail page
+    const addToCartDetailButton = document.querySelector('.add-to-cart-detail');
+    if (addToCartDetailButton) {
+        addToCartDetailButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            const productId = this.getAttribute('data-product-id');
+            const quantity = parseInt(document.getElementById('product-quantity').value);
+
+            fetch('/add_to_cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    quantity: quantity
+                })
+            })
+            .then(async response => {
+                if (response.redirected || response.status === 401 || response.status === 302) {
+                    window.location.href = '/login';
+                    return null;
+                }
+                const contentType = response.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) {
+                    throw new Error('Unexpected response format');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+                if (data.success) {
+                    const alertHtml = `
+                        <div class="alert alert-success alert-dismissible fade show position-fixed" 
+                             style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+                            <i class="fas fa-check-circle me-2"></i>${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
+                    document.body.insertAdjacentHTML('beforeend', alertHtml);
+                    updateCartCount();
+                    setTimeout(() => { document.querySelector('.alert').remove(); }, 3000);
+                } else {
+                    const alertHtml = `
+                        <div class="alert alert-danger alert-dismissible fade show position-fixed" 
+                             style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+                            <i class="fas fa-exclamation-circle me-2"></i>${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
+                    document.body.insertAdjacentHTML('beforeend', alertHtml);
+                    setTimeout(() => { document.querySelector('.alert').remove(); }, 3000);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const alertHtml = `
+                    <div class="alert alert-danger alert-dismissible fade show position-fixed" 
+                         style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+                        <i class="fas fa-exclamation-circle me-2"></i>An unexpected error occurred.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', alertHtml);
+                setTimeout(() => { document.querySelector('.alert').remove(); }, 3000);
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,393 @@
+{% extends "base.html" %}
+
+{% block title %}Personalized Recommendations - Cartify{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1>
+                <i class="fas fa-magic"></i>
+                Personalized Recommendations
+            </h1>
+            <p class="text-muted">Products recommended based on your shopping preferences and history</p>
+        </div>
+    </div>
+
+    <!-- Recommendation Filters -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterRecommendations('all')">
+                    <i class="fas fa-list"></i> All
+                </button>
+                <button class="filter-btn" onclick="filterRecommendations('based_on_category')">
+                    <i class="fas fa-tag"></i> Your Category
+                </button>
+                <button class="filter-btn" onclick="filterRecommendations('based_on_history')">
+                    <i class="fas fa-history"></i> Similar to Purchases
+                </button>
+                <button class="filter-btn" onclick="filterRecommendations('trending')">
+                    <i class="fas fa-fire"></i> Trending
+                </button>
+                <button class="filter-btn" onclick="filterRecommendations('high_rated')">
+                    <i class="fas fa-star"></i> Top Rated
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations Grid -->
+    <div id="recommendations-container" class="row">
+        <!-- Recommendations will be loaded here -->
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-spinner fa-spin"></i> Loading recommendations...
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.filter-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.filter-btn {
+    padding: 10px 20px;
+    border: 2px solid #ddd;
+    border-radius: 24px;
+    background: white;
+    color: #333;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.filter-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: white;
+}
+
+.recommendation-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.recommendation-card:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+}
+
+.card-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    background: #f5f5f5;
+}
+
+.card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.recommendation-card:hover .card-image {
+    transform: scale(1.05);
+}
+
+.recommendation-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.recommendation-type {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 8px;
+}
+
+.card-info {
+    padding: 16px;
+}
+
+.card-category {
+    color: #999;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.card-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+    min-height: 40px;
+}
+
+.card-reason {
+    font-size: 12px;
+    color: #667eea;
+    font-weight: 600;
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+.card-price {
+    font-size: 24px;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 10px;
+}
+
+.card-rating {
+    color: #ffc107;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.card-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.card-actions button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-add-cart {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-add-cart:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-add-wishlist {
+    background: #fafafa;
+    color: #e74c3c;
+    border: 1px solid #e0e0e0;
+}
+
+.btn-add-wishlist:hover {
+    background: #ffe5e5;
+    border-color: #e74c3c;
+}
+
+.btn-help-yes {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-help: no {
+    background: #e74c3c;
+    color: white;
+}
+
+.recommendation-feedback {
+    border-top: 1px solid #f0f0f0;
+    padding-top: 10px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #999;
+}
+
+.empty-recommendations {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-recommendations i {
+    font-size: 64px;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.empty-recommendations p {
+    font-size: 18px;
+    color: #999;
+    margin-bottom: 20px;
+}
+</style>
+
+<script>
+let allRecommendations = [];
+let filteredRecommendations = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadRecommendations();
+});
+
+function loadRecommendations() {
+    fetch('/api/recommendations?limit=12')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                allRecommendations = data.recommendations;
+                filteredRecommendations = allRecommendations;
+                displayRecommendations(filteredRecommendations);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function displayRecommendations(recommendations) {
+    const container = document.getElementById('recommendations-container');
+    
+    if (recommendations.length === 0) {
+        container.innerHTML = `
+            <div class="col-12">
+                <div class="empty-recommendations">
+                    <i class="fas fa-search"></i>
+                    <p>No recommendations available at this time</p>
+                    <a href="/products" class="btn btn-primary">
+                        <i class="fas fa-shopping-bag"></i> Browse Products
+                    </a>
+                </div>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = recommendations.map(rec => `
+        <div class="col-md-6 col-lg-4">
+            <div class="recommendation-card" data-product-id="${rec.product_id}">
+                <div class="card-image-wrapper">
+                    <img src="${rec.image}" class="card-image" alt="${rec.name}">
+                    <div class="recommendation-badge">
+                        ${(rec.score * 100).toFixed(0)}% Match
+                    </div>
+                </div>
+                <div class="card-info">
+                    <div class="card-category">${rec.category}</div>
+                    <div class="card-name">${rec.name}</div>
+                    <div class="recommendation-type">
+                        ${rec.type.replace(/_/g, ' ')}
+                    </div>
+                    <div class="card-reason">
+                        <i class="fas fa-lightbulb"></i> ${rec.reason}
+                    </div>
+                    <div class="card-price">₹${rec.price.toLocaleString()}</div>
+                    <div class="card-rating">
+                        <i class="fas fa-star"></i> ${rec.rating}
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-add-cart" onclick="addToCart(${rec.product_id})">
+                            <i class="fas fa-cart-plus"></i> Add
+                        </button>
+                        <button class="btn-add-wishlist" onclick="addToWishlist(${rec.product_id})">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="recommendation-feedback">
+                        Was this helpful?
+                        <button onclick="recommendationFeedback(${rec.product_id}, true)" style="color: #27ae60; cursor: pointer;">
+                            <i class="fas fa-thumbs-up"></i>
+                        </button>
+                        <button onclick="recommendationFeedback(${rec.product_id}, false)" style="color: #e74c3c; cursor: pointer; margin-left: 10px;">
+                            <i class="fas fa-thumbs-down"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function filterRecommendations(type) {
+    // Update active button
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    if (type === 'all') {
+        filteredRecommendations = allRecommendations;
+    } else {
+        filteredRecommendations = allRecommendations.filter(rec => rec.type === type);
+    }
+    
+    displayRecommendations(filteredRecommendations);
+}
+
+function addToCart(productId) {
+    fetch('/add_to_cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: productId, quantity: 1 })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Added to cart!');
+        }
+    });
+}
+
+function addToWishlist(productId) {
+    fetch('/api/wishlist/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: productId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Added to wishlist!');
+        }
+    });
+}
+
+function recommendationFeedback(productId, helpful) {
+    fetch(`/api/recommendations/${productId}/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ helpful: helpful })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Feedback recorded');
+        }
+    });
+}
+</script>
+{% endblock %}
